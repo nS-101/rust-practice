@@ -13,8 +13,7 @@ fn main(){
                                                            //random_range takes range in the form of start..=end, both numbers being inclusive
                                                            //so we do 1..=100 to generate a number from 1-100 inclusive on both ends
 
-    println!("The secret number is : {secret_number}"); //print secret number(just for testing)
-
+loop { //create loop process to repeatedly ask for guess until correct answer
     println!("Please input your guess.");
 
     let mut guess = String::new(); //create mutable variable(variables are immutable by default)
@@ -31,16 +30,27 @@ fn main(){
 //whole block above could be written as just one line:
 // io::stdin().read_line(&mut guess).expect("Failed to read line");
 
-    let guess: u32 = guess.trim().parse().expect("Please type a number!"); //this line reuses the same guess String variable defined previously and does multiple things
+    let guess: u32 = match guess.trim().parse() { //this line reuses the same guess String variable defined previously and does multiple things
+        Ok(num) => num,
+        Err(_) => continue,
+    }; 
     //trim on a String gets rid of the newline char and whitespace, which must happen before conversion to u32 type(unsigned 32 bit number)
     //parse on Strings converts a String to another type, here we use it to convert to a number of type u32
-    //we used .expect because parse only works on strings that can be logically turned into numbers, if we used an emoji, it would return a Result enum of Err and print our message. If Result is Ok, it returns our number like usual
+    //we use what's called a match expression(same thing is used below to compare numbers)
+    //the match expression handles errors since .parse returns a Result enum and so we can take actions depending on what Result is
+    //if the string to number conversion works(Ok), we just return num and guess is that number
+    //if it doesn't work(Err, with the _ being a catchall for all possible Errs), continue makes it so that the loop restarts and asks the user for an input again until they input something valid
 
-    println!("You guessed: {guess}"); //print the user input
+        println!("You guessed: {guess}"); //print the user input
 
-    match guess.cmp(&secret_number){ //compare guess to secret_number and uses Ordering enum. 
-        Ordering::Less => println!("Too small!"), //these 3 comparisons are seeing if guess is less/greater/equal to the secret number
-        Ordering::Greater => println!("Too big!"),
-        Ordering::Equal => println!("You win!"),
+        match guess.cmp(&secret_number){ //compare guess to secret_number and uses Ordering enum. 
+            Ordering::Less => println!("Too small!"), //these 3 comparisons are seeing if guess is less/greater/equal to the secret number
+            Ordering::Greater => println!("Too big!"),
+            Ordering::Equal => { //put the 2 lines of code inside brackets, since it's not just one line anymore
+                println!("You win!");
+                break; //break out of loop when correct answer is inputted
+            }
+        }
     }
+
 }
